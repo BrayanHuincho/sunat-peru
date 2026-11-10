@@ -1,0 +1,85 @@
+{
+  "info": {
+    "name": "sunat-peru",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [{ "key": "base_url", "value": "http://127.0.0.1:3000" }],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "const hoy = new Date(Date.now() - 5 * 3600000).toISOString().slice(0, 10);",
+          "pm.collectionVariables.set('hoy', hoy);",
+          "pm.collectionVariables.set('correlativo', String(Math.floor(Date.now() / 1000) % 99999999));"
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "name": "Preparar factura (no envía nada)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": ["pm.test('firmada', () => pm.expect(pm.response.json().hash).to.be.a('string'));"]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": "{{base_url}}/preparar",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"tipo\": \"01\",\n  \"serie\": \"F001\",\n  \"correlativo\": {{correlativo}},\n  \"fechaEmision\": \"{{hoy}}\",\n  \"preciosIncluyenIgv\": true,\n  \"cliente\": { \"tipoDocumento\": \"6\", \"numeroDocumento\": \"20100066603\", \"nombre\": \"CLIENTE DE PRUEBA SAC\" },\n  \"items\": [{ \"descripcion\": \"Producto de prueba\", \"cantidad\": 2, \"precioUnitario\": \"118.00\" }]\n}"
+        }
+      }
+    },
+    {
+      "name": "Enviar factura a SUNAT beta",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": ["pm.test('aceptada', () => pm.expect(pm.response.json().estado).to.eql('aceptado'));"]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": "{{base_url}}/enviar",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"tipo\": \"01\",\n  \"serie\": \"F001\",\n  \"correlativo\": {{correlativo}},\n  \"fechaEmision\": \"{{hoy}}\",\n  \"preciosIncluyenIgv\": true,\n  \"cliente\": { \"tipoDocumento\": \"6\", \"numeroDocumento\": \"20100066603\", \"nombre\": \"CLIENTE DE PRUEBA SAC\" },\n  \"items\": [{ \"descripcion\": \"Producto de prueba\", \"cantidad\": 2, \"precioUnitario\": \"118.00\" }]\n}"
+        }
+      }
+    },
+    {
+      "name": "Datos inválidos (muestra todos los errores)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": ["pm.test('validación', () => pm.response.to.have.status(422));"]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": "{{base_url}}/preparar",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"tipo\": \"01\",\n  \"serie\": \"X1\",\n  \"correlativo\": 0,\n  \"fechaEmision\": \"{{hoy}}\",\n  \"cliente\": { \"tipoDocumento\": \"1\", \"numeroDocumento\": \"123\", \"nombre\": \"\" },\n  \"items\": [{ \"descripcion\": \"\", \"cantidad\": -1, \"precioUnitario\": \"10.00\" }]\n}"
+        }
+      }
+    }
+  ]
+}
