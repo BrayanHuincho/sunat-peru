@@ -160,10 +160,6 @@ Todavía no: PDF, operaciones gratuitas, exportación, detracciones, percepcione
 
 Si necesitas hoy alguno de esos documentos o trabajas en PHP, usa Greenter, que lleva años en uso y cubre mucho más. Hay otros paquetes de JavaScript para SUNAT que también vale la pena mirar.
 
-## Arquitectura
-
-El cálculo, la validación, el XML y la lectura del CDR son funciones puras. La red está aislada en `src/transporte`, y `fetch` se puede inyectar para probar sin conexión. Los detalles están en [docs/ARQUITECTURA.md](docs/ARQUITECTURA.md).
-
 ## Desarrollo
 
 ```bash
@@ -174,6 +170,3 @@ npm run typecheck
 
 Para incluir el envío real a beta, define las variables de `.env.example` y `SUNAT_BETA=1`.
 
-## Licencia
-
-MIT
