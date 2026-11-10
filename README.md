@@ -169,4 +169,3 @@ npm run typecheck
 ```
 
 Para incluir el envío real a beta, define las variables de `.env.example` y `SUNAT_BETA=1`.
-
